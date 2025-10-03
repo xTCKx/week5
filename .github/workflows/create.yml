@@ -1,0 +1,20 @@
+---
+name: create infrastructure
+on: 
+  push:
+    branches:
+      - main
+jobs:
+  lint:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Ansible
+        uses: ansible/ansible-github-actions@v2
+        with:
+          version: '2.9.10'
+
+      - name: Run Ansible Playbook
+        run: ansible-playbook ansible/apache.yml -i ansible/inventory.ini
