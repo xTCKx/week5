@@ -1,4 +1,11 @@
 terraform {
+    backend "remote" {
+    organization = "terraform-organisatie"
+    workspaces {
+      name = "workspace"
+    }
+  }
+
   required_providers {
     esxi = {
       source = "registry.terraform.io/josenk/esxi"
