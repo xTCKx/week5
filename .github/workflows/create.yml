@@ -5,16 +5,114 @@ on:
     branches:
       - main
 jobs:
-  lint:
+  linting:
     runs-on: self-hosted
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Set up Ansible
-        uses: ansible/ansible-github-actions@v2
+      - name: Set up Python
+        uses: actions/setup-python@v6
         with:
-          version: '2.9.10'
+          python-version: '3.13' 
+      
+      - name: Install linting tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible-lint yamllint
 
-      - name: Run Ansible Playbook
-        run: ansible-playbook ansible/apache.yml -i ansible/inventory.ini
+      - name: run YAML lint
+        run: yamllint .
+
+      - name: run Ansible lint
+        run: ansible-lint ansible/
+          
+      - name: install Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: set up terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.13.3'
+
+      - name: terraform init
+        run: terraform init -backend=false ./terraform
+
+      - name: terraform fmt check
+        run: terraform fmt -check ./terraform
+
+      - name: terraform validate
+        run: terraform validate ./terraform
+
+  policy_check:
+    name: Terraform policy check
+    runs-on: self-hosted
+    needs: terraform_plan
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install OPA
+        run: |
+          curl -L -o opa https://openpolicyagent.org/downloads/latest/opa_linux_amd64
+          chmod +x opa
+          sudo mv opa /usr/local/bin/
+
+      - name: Run OPA policy checks
+        run: |
+          opa eval --data policies/ --input terraform/tfplan.json "data.terraform.allow"
+
+  deploy:
+    runs-on: self-hosted
+    needs: [linting, policy_check]
+    if: ${{ success() }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install Ansible and dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible
+
+      - name: install Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: set up terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.13.3'
+
+      - name: terraform init
+        run: terraform init ./terraform
+
+      - name: terraform apply
+        run: terraform apply -auto-approve ./terraform
+
+      - name: Run Ansible playbook
+        run: ansible-playbook -i ansible/inventory.ini ansible/apache.yml
+
+  test:
+    name: test deployment
+    runs-on: self-hosted
+    needs: [deploy]
+    if: ${{ success() }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      
+      - name: test Apache running
+        run: |
+          ansible all -i ansible/inventory.ini -m shell \
+            -a "systemctl is-active apache2 || systemctl is-active httpd"
+
+
