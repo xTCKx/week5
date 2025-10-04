@@ -43,11 +43,6 @@ variable "ovf_source" {
   default = "https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-amd64.ova"
 }
 
-variable "webserver_count" {
-  type    = number
-  default = 2
-}
-
 variable "virtual_network" {
   type    = string
   default = "VM Network"

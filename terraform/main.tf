@@ -17,9 +17,8 @@ provider "esxi" {
   esxi_password = var.esxi_password
 }
 
-resource "esxi_guest" "web-vm" {
-  count      = 2
-  guest_name = "web-${count.index + 1}"
+resource "esxi_guest" "web" {
+  guest_name = "web"
   disk_store = var.disk_store
   memsize    = var.vm_memsize
   numvcpus   = var.vm_numvcpus
@@ -30,38 +29,19 @@ resource "esxi_guest" "web-vm" {
   }
 
   guestinfo = {
-    "metadata"          = filebase64("metadata.yml")
+    "metadata"          = filebase64("${path.module}/../cloudinit/metadata.yml")
     "metadata.encoding" = "base64"
-    "userdata"          = filebase64("userdata.yml")
+    "userdata"          = filebase64("${path.module}/../cloudinit/userdata.yml")
     "userdata.encoding" = "base64"
   }
 }
 
-resource "esxi_guest" "db-vm" {
-  guest_name = "db"
-  disk_store = var.disk_store
-  memsize    = var.vm_memsize
-  numvcpus   = var.vm_numvcpus
-
-  ovf_source = var.ovf_source
-  network_interfaces {
-    virtual_network = var.virtual_network
-  }
-
-  guestinfo = {
-    "metadata"          = filebase64("metadata.yml")
-    "metadata.encoding" = "base64"
-    "userdata"          = filebase64("userdata.yml")
-    "userdata.encoding" = "base64"
-  }
-}
 
 # Genereer inventory
 resource "local_file" "inventory" {
   content  = templatefile("${path.module}/inventory.ini.tpl", {
-    web_vms = esxi_guest.web-vm
-    db_vms = esxi_guest.db-vm
+    web_vms = esxi_guest.web
   })
-  filename = "${path.module}/inventory.ini"
+  filename = "${path.module}/../ansible/inventory.ini"
 
 }
