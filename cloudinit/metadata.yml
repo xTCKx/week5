@@ -1,2 +1,2 @@
-#cloud-config
+# cloud-config
 local-hostname: vm

@@ -1,6 +1,6 @@
 ---
 name: destroy infrastructure
-on: 
+on:
   workflow_dispatch
 jobs:
   destroy:
@@ -15,4 +15,6 @@ jobs:
           version: '2.9.10'
 
       - name: Run Ansible Playbook
-        run: ansible-playbook ansible/apache-destroy.yml -i ansible/inventory.ini
+        run: |
+          ansible-playbook ansible/apache-destroy.yml
+          -i ansible/inventory.ini

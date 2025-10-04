@@ -6,8 +6,9 @@
     - name: Install Apache zonder apt
       command: apt-get update && apt-get install -y apache2
       register: install_apache
-      changed_when: "'newly installed' in install_apache2.stdout or '0 upgraded' not in install_apache2.stdout"
-      
+      changed_when: "'newly installed' in install_apache2.stdout or
+        '0 upgraded' not in install_apache2.stdout"
+
     - name: Foute taak (bestaat niet)
       command: /usr/bin/fakebinary
-      ignore_errors: yes
+      ignore_errors: true
