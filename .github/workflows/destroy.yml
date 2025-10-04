@@ -9,11 +9,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: terraform destroy
-        uses: hashicorp/terraform-github-actions@v2.5.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
         with:
-          tf_actions_version: '1.13.3'
-          tf_actions_subcommand: 'destroy'
-          tf_actions_working_dir: './terraform'
-          tf_actions_auto_approve: 'true'
-          tf_actions_cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          node-version: "24"
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.13.3
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init -input=false
+
+      - name: Terraform Destroy
+        working-directory: terraform
+        run: terraform destroy -auto-approve -input=false
