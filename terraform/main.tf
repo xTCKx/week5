@@ -39,7 +39,7 @@ resource "esxi_guest" "web" {
 
 # Genereer inventory
 resource "local_file" "inventory" {
-  content  = templatefile("${path.module}/inventory.ini.tpl", {
+  content = templatefile("${path.module}/inventory.ini.tpl", {
     web_vms = esxi_guest.web
   })
   filename = "${path.module}/../ansible/inventory.ini"
