@@ -1,6 +1,7 @@
 terraform {
-    backend "remote" {
+  backend "remote" {
     organization = "terraform-organisatie"
+
     workspaces {
       name = "workspace"
     }
