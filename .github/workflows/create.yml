@@ -53,16 +53,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Install OPA
-        run: |
-          wget https://openpolicyagent.org/downloads/latest/opa_linux_amd64
-          chmod +x opa_linux_amd64
-          sudo mv opa_linux_amd64 /usr/local/bin/opa
+      - name: set up python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
 
-      - name: Run OPA checks
+      - name: Install checkov
         run: |
-          opa eval --data ./terraform/policy --input ./terraform/main.tf
-          'data.terraform.analysis.deny'
+          python -m pip install --upgrade pip
+          pip install checkov
+
+      - name: run checkov terraform
+        working-directory: terraform
+        run: |
+          checkov --directory . --framework terraform \
+            --output cli --output junitxml \
+            --output-file-path console,checkov-report.xml
+        continue-on-error: true
+
+      - name: run checkov ansible
+        run: |
+          checkov --directory ansible --framework ansible \
+            --output cli
+        continue-on-error: true
+
+      - name: upload security scan results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-scan-results
+          path: terraform/checkov-report.xml
 
   deploy:
     runs-on: self-hosted
@@ -116,6 +136,3 @@ jobs:
           ansible all -i ansible/inventory.ini -m shell \
             -a "systemctl is-active apache2 ||
             systemctl is-active httpd"
-
-
-
