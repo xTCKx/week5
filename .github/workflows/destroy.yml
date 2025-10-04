@@ -9,12 +9,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Set up Ansible
-        uses: ansible/ansible-github-actions@v2
+      - name: terraform destroy
+        uses: hashicorp/terraform-github-actions@v2.5.0
         with:
-          version: '2.9.10'
-
-      - name: Run Ansible Playbook
-        run: |
-          ansible-playbook ansible/apache-destroy.yml
-          -i ansible/inventory.ini
+          tf_actions_version: '1.13.3'
+          tf_actions_subcommand: 'destroy'
+          tf_actions_working_dir: './terraform'
+          tf_actions_auto_approve: 'true'
+          tf_actions_cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
