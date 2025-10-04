@@ -38,13 +38,16 @@ jobs:
           terraform_version: '1.13.3'
 
       - name: terraform init
-        run: terraform init -backend=false ./terraform
+        working-directory: terraform
+        run: terraform init -backend=false 
 
       - name: terraform fmt check
-        run: terraform fmt -check ./terraform
+        working-directory: terraform
+        run: terraform fmt -check
 
       - name: terraform validate
-        run: terraform validate ./terraform
+        working-directory: terraform
+        run: terraform validate
 
   policy_check:
     name: Terraform policy check
