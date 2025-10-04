@@ -1,0 +1,8 @@
+---
+skip_list:
+  - name[play]  # All plays should be named
+  - package-latest  # Package installs should not use latest
+  - command-instead-of-module  # apt-get used in place of apt module
+  - fqcn[action-core]  # Use FQCN for builtin module actions
+  - no-changed-when  # Commands should not change things if nothing needs doing
+  - ignore-errors  # Use failed_when instead of ignore_errors
