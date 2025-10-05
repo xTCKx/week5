@@ -124,6 +124,12 @@ jobs:
         working-directory: terraform
         run: terraform apply -auto-approve
 
+      - name: upload inventory file als artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ansible-inventory
+          path: ansible/inventory.ini
+
       - name: run ansible playbook
         run: |
           ansible-playbook -i ansible/inventory.ini ansible/apache.yml
@@ -134,8 +140,11 @@ jobs:
     needs: [deploy]
     if: ${{ success() }}
     steps:
-      - name: checkout repository
-        uses: actions/checkout@v5
+      - name: download inventory file
+        uses: actions/download-artifact@v4
+        with:
+          name: ansible-inventory
+          path: ansible/
 
       - name: test apache running
         run: |
