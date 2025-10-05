@@ -6,24 +6,24 @@ jobs:
   destroy:
     runs-on: self-hosted
     steps:
-      - name: Checkout repository
+      - name: checkout repository
         uses: actions/checkout@v5
 
-      - name: Setup Node.js
+      - name: set up node.js
         uses: actions/setup-node@v5
         with:
           node-version: "24"
 
-      - name: Setup Terraform
+      - name: set up terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.13.3
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: Terraform Init
+      - name: terraform init
         working-directory: terraform
         run: terraform init -input=false
 
-      - name: Terraform Destroy
+      - name: terraform destroy
         working-directory: terraform
         run: terraform destroy -auto-approve -input=false

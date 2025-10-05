@@ -8,15 +8,15 @@ jobs:
   linting:
     runs-on: self-hosted
     steps:
-      - name: Checkout repository
+      - name: checkout repository
         uses: actions/checkout@v5
 
-      - name: Set up Python
+      - name: set up python
         uses: actions/setup-python@v6
         with:
           python-version: '3.13'
 
-      - name: Install linting tools
+      - name: install linting tools
         run: |
           python -m pip install --upgrade pip
           pip install ansible-lint yamllint
@@ -50,10 +50,10 @@ jobs:
         run: terraform validate
 
   policy_check:
-    name: Terraform policy check
+    name: terraform policy check
     runs-on: self-hosted
     steps:
-      - name: Checkout
+      - name: checkout
         uses: actions/checkout@v5
 
       - name: set up python
@@ -61,7 +61,7 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install checkov
+      - name: install checkov
         run: |
           python -m pip install --upgrade pip
           pip install checkov
@@ -92,15 +92,15 @@ jobs:
     needs: [linting, policy_check]
     if: ${{ success() }}
     steps:
-      - name: Checkout repository
+      - name: checkout repository
         uses: actions/checkout@v5
 
-      - name: Set up Python
+      - name: set up Python
         uses: actions/setup-python@v6
         with:
           python-version: '3.13'
 
-      - name: Install Ansible and dependencies
+      - name: install ansible en dependencies
         run: |
           python -m pip install --upgrade pip
           pip install ansible
@@ -124,7 +124,7 @@ jobs:
         working-directory: terraform
         run: terraform apply -auto-approve
 
-      - name: Run Ansible playbook
+      - name: run ansible playbook
         run: |
           ansible-playbook -i ansible/inventory.ini ansible/apache.yml
 
@@ -134,10 +134,10 @@ jobs:
     needs: [deploy]
     if: ${{ success() }}
     steps:
-      - name: Checkout repository
+      - name: checkout repository
         uses: actions/checkout@v5
 
-      - name: test Apache running
+      - name: test apache running
         run: |
           ansible all -i ansible/inventory.ini -m shell \
             -a "systemctl is-active apache2 ||
