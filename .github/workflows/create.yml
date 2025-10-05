@@ -151,3 +151,4 @@ jobs:
           ansible all -i ansible/inventory.ini -m shell \
             -a "systemctl is-active apache2 ||
             systemctl is-active httpd"
+            
